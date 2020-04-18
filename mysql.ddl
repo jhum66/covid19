@@ -102,3 +102,4 @@ SELECT 'ts_rate3', count(1) from ts_rate3
 union all
 SELECT 'ts_rate4', count(1) from ts_rate4;
 
+
