@@ -1,0 +1,5 @@
+while true
+do
+	python3 corona.py --data 3600
+	sleep 60
+done
