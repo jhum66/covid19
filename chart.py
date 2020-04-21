@@ -108,6 +108,10 @@ def plot_data (data, titles, chart_rows, chart_cols, figure_title):
                 recovered = recovered.append ({'Update Date': row[0], 'Volume': recovered_db}, ignore_index=True)
                 date_max = row[0]
 
+            if (i == 0 and j == 0):
+                print (("%35s %15s %s %s %s") % ("Title", "Date", "Confirmed Cases", "Deaths", "Recovered"))
+            print (("%35s %15s %15d %6d %9d") % (titles[i][j], date_max, confirmed_db, deaths_db, recovered_db))
+
             #print (confirmed)
             ax[i][j].set_title(titles[i][j])
             ax[i][j].plot('Update Date', 'Volume', data=confirmed, color='b')
@@ -230,6 +234,50 @@ def chart_ca():
 
     plot_data (data, titles, n, n, 'Canadian Coronavirus Dashboard')
 
+def chart_j():
+    global g_mydb
+
+    today = datetime.date.today()
+    start = today - datetime.timedelta(days=25)
+    start_dt = start.strftime("%Y-%m-%d")
+
+    rows_us = g_mydb.query_fetch_all(("SELECT date(d.update_dt) as update_dt, sum(f.confirmed_cases) as confirmed_cases, sum(f.deaths) as deaths, sum(f.recovered_cases) as recovered_cases FROM f_rate3 f inner join d_datetime d on f.d_datetime_id = d.d_datetime_id where f.d_country_id = 3 and d.update_dt > '%s' group by date(d.update_dt) order by date(d.update_dt) asc") % (start_dt))
+    rows_il = g_mydb.query_fetch_all(("SELECT date(d.update_dt) as update_dt, sum(f.confirmed_cases) as confirmed_cases, sum(f.deaths) as deaths, sum(f.recovered_cases) as recovered_cases FROM f_rate3 f inner join d_datetime d on f.d_datetime_id = d.d_datetime_id where f.d_state_id = 22 and d.update_dt > '%s' group by date(d.update_dt) order by date(d.update_dt) asc") % (start_dt))
+    rows_ck = g_mydb.query_fetch_all(("SELECT date(d.update_dt) as update_dt, sum(f.confirmed_cases) as confirmed_cases, sum(f.deaths) as deaths, sum(f.recovered_cases) as recovered_cases FROM f_rate3 f inner join d_datetime d on f.d_datetime_id = d.d_datetime_id where f.d_county_id = 265 and d.update_dt > '%s' group by date(d.update_dt) order by date(d.update_dt) asc") % (start_dt))
+    rows_wl = g_mydb.query_fetch_all(("SELECT date(d.update_dt) as update_dt, sum(f.confirmed_cases) as confirmed_cases, sum(f.deaths) as deaths, sum(f.recovered_cases) as recovered_cases FROM f_rate3 f inner join d_datetime d on f.d_datetime_id = d.d_datetime_id where f.d_county_id = 268 and d.update_dt > '%s' group by date(d.update_dt) order by date(d.update_dt) asc") % (start_dt))
+    #rows_ny = g_mydb.query_fetch_all(("SELECT date(d.update_dt) as update_dt, sum(f.confirmed_cases) as confirmed_cases, sum(f.deaths) as deaths, sum(f.recovered_cases) as recovered_cases FROM f_rate3 f inner join d_datetime d on f.d_datetime_id = d.d_datetime_id where f.d_county_id in (28, 52, 3289) and d.update_dt > '%s' group by date(d.update_dt) order by date(d.update_dt) asc") % (start_dt))
+
+    rows_us2 = g_mydb.query_fetch_all(("SELECT date(a.update_dt) as update_dt, max(confirmed_cases) as confirmed_cases, max(deaths) as deaths, max(recovered_cases) as recovered_cases FROM (SELECT d.update_dt as update_dt, sum(f.confirmed_cases) as confirmed_cases, sum(f.deaths) as deaths, sum(f.recovered_cases) as recovered_cases FROM ts_rate3 f inner join d_datetime d on f.d_datetime_id = d.d_datetime_id where f.d_country_id = 3 and d.update_dt > '%s' group by d.update_dt order by d.update_dt asc) a group by date(a.update_dt) order by 1;") % (start_dt))
+    rows_il2 = g_mydb.query_fetch_all(("SELECT date(a.update_dt) as update_dt, max(confirmed_cases) as confirmed_cases, max(deaths) as deaths, max(recovered_cases) as recovered_cases FROM (SELECT d.update_dt as update_dt, sum(f.confirmed_cases) as confirmed_cases, sum(f.deaths) as deaths, sum(f.recovered_cases) as recovered_cases FROM ts_rate3 f inner join d_datetime d on f.d_datetime_id = d.d_datetime_id where f.d_state_id = 22 and d.update_dt > '%s' group by d.update_dt order by d.update_dt asc) a group by date(a.update_dt) order by 1;") % (start_dt))
+    rows_ck2 = g_mydb.query_fetch_all(("SELECT date(a.update_dt) as update_dt, max(confirmed_cases) as confirmed_cases, max(deaths) as deaths, max(recovered_cases) as recovered_cases FROM (SELECT d.update_dt as update_dt, sum(f.confirmed_cases) as confirmed_cases, sum(f.deaths) as deaths, sum(f.recovered_cases) as recovered_cases FROM ts_rate3 f inner join d_datetime d on f.d_datetime_id = d.d_datetime_id where f.d_county_id = 265 and d.update_dt > '%s' group by d.update_dt order by d.update_dt asc) a group by date(a.update_dt) order by 1;") % (start_dt))
+    rows_wl2 = g_mydb.query_fetch_all(("SELECT date(a.update_dt) as update_dt, max(confirmed_cases) as confirmed_cases, max(deaths) as deaths, max(recovered_cases) as recovered_cases FROM (SELECT d.update_dt as update_dt, sum(f.confirmed_cases) as confirmed_cases, sum(f.deaths) as deaths, sum(f.recovered_cases) as recovered_cases FROM ts_rate3 f inner join d_datetime d on f.d_datetime_id = d.d_datetime_id where f.d_county_id = 268 and d.update_dt > '%s' group by d.update_dt order by d.update_dt asc) a group by date(a.update_dt) order by 1;") % (start_dt))
+    rows_ny  = g_mydb.query_fetch_all(("SELECT date(a.update_dt) as update_dt, max(confirmed_cases) as confirmed_cases, max(deaths) as deaths, max(recovered_cases) as recovered_cases FROM (SELECT d.update_dt as update_dt, sum(f.confirmed_cases) as confirmed_cases, sum(f.deaths) as deaths, sum(f.recovered_cases) as recovered_cases FROM ts_rate3 f inner join d_datetime d on f.d_datetime_id = d.d_datetime_id where f.d_county_id in (28, 52, 3289) and d.update_dt > '%s' group by d.update_dt order by d.update_dt asc) a group by date(a.update_dt) order by 1;") % (start_dt))
+
+    n = 3
+    data = [[0] * n for i in range (n)]
+    data [0][0] = rows_il
+    data [0][1] = rows_ck
+    data [0][2] = rows_wl
+    data [1][0] = rows_il2
+    data [1][1] = rows_ck2
+    data [1][2] = rows_wl2
+    data [2][0] = rows_us
+    data [2][1] = rows_us2
+    data [2][2] = rows_ny
+
+    titles = [[0] * n for i in range (n)]
+    titles [0][0] = 'Illinois Cases Daily Growth'
+    titles [0][1] = 'Cook County Cases Daily Growth'
+    titles [0][2] = 'Will County Cases Daily Growth'
+    titles [1][0] = 'Illinois Cases Total'
+    titles [1][1] = 'Cook County Cases Total'
+    titles [1][2] = 'Will County Cases Total'
+    titles [2][0] = 'US Cases Daily Growth'
+    titles [2][1] = 'US Cases Total'
+    titles [2][2] = 'New York County Cases Total'
+
+    plot_data (data, titles, n, n, "Jim Hogan's Coronavirus Dashboard")
+
 def main():
     global g_mydb
 
@@ -238,6 +286,7 @@ def main():
 
     chart_us()
     chart_ca()
+    chart_j()
 
     g_mydb.disconnect()
     
